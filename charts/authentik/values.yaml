@@ -1,8 +1,33 @@
 # Authentik domain (must match Tailscale ingress)
 domain: "authentik.example.ts.net"
 
-# CRITICAL: Change this to a secure 32+ character random string
-secretKey: "CHANGE-ME-TO-SECURE-32-CHAR-STRING"
+authentik:
+  enabled: true
+  secretKey: "CHANGE-ME-TO-SECURE-32-CHAR-STRING"
+  image:
+    repository: ghcr.io/goauthentik/server
+    tag: "2026.2.2"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  postgres:
+    password: "CHANGE_ME_SECURE_POSTGRES_PASSWORD"
+    database: "authentik"
+    username: "authentik"
+  redis:
+    password: "CHANGE_ME_SECURE_REDIS_PASSWORD"
+  oidc:
+    enabled: false
+    issuerUrl: ""
+    clientId: ""
+    clientSecret: ""
+    scopes: ["openid", "email", "profile"]
 
 # Proxy configuration for cookie domain
 proxy:
@@ -10,31 +35,12 @@ proxy:
   hostname: "authentik.example.ts.net"
   cookieDomain: ".example.ts.net"
 
-# Authentik server image
-image:
-  repository: ghcr.io/goauthentik/server
-  tag: "2026.2.2"
-  pullPolicy: IfNotPresent
-
-replicaCount: 1
-
-resources:
-  requests:
-    cpu: 500m
-    memory: 512Mi
-  limits:
-    cpu: "2"
-    memory: 2Gi
-
 # PostgreSQL configuration
 postgres:
   enabled: true
   image:
     repository: postgres
     tag: "15"
-  database: "authentik"
-  username: "authentik"
-  password: "CHANGE_ME_SECURE_POSTGRES_PASSWORD"
   resources:
     requests:
       cpu: 100m
@@ -52,7 +58,6 @@ redis:
   image:
     repository: redis
     tag: "7-alpine"
-  password: "CHANGE_ME_SECURE_REDIS_PASSWORD"
   resources:
     requests:
       cpu: 50m
@@ -67,11 +72,3 @@ ingress:
   hostname: "authentik"
   tailscale:
     proxyTag: "tag:k8s"
-
-# OIDC configuration (for external apps like OpenCode)
-oidc:
-  enabled: false
-  issuerUrl: ""
-  clientId: ""
-  clientSecret: ""
-  scopes: ["openid", "email", "profile"]
