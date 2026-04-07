@@ -2,6 +2,10 @@
 
 Standalone Helm chart for deploying Authentik Identity-Aware Proxy in Kubernetes clusters.
 
+## Architecture Support
+
+This chart supports deployment on both AMD64 and ARM64 architectures. The container images automatically resolve to the appropriate platform variant based on the target node architecture.
+
 ## Installation
 
 ### From source (development)
