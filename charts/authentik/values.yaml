@@ -34,7 +34,7 @@ postgres:
     tag: "15"
   database: "authentik"
   username: "authentik"
-  password: "authentikpassword"
+  password: "CHANGE_ME_SECURE_POSTGRES_PASSWORD"
   resources:
     requests:
       cpu: 100m
@@ -52,7 +52,7 @@ redis:
   image:
     repository: redis
     tag: "7-alpine"
-  password: "redispassword"
+  password: "CHANGE_ME_SECURE_REDIS_PASSWORD"
   resources:
     requests:
       cpu: 50m
