@@ -1,0 +1,14 @@
+# Helm
+*.tgz
+charts/*/charts/
+
+# Kubernetes
+*.yaml.tmp
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

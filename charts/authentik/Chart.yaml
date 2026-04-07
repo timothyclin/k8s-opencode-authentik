@@ -1,0 +1,16 @@
+apiVersion: v2
+name: authentik
+description: Authentik Identity-Aware Proxy
+type: application
+version: 0.1.0
+appVersion: "2026.2.2"
+
+keywords:
+  - authentication
+  - identity
+  - oidc
+  - saml
+
+maintainers:
+  - name: Timothy Lin
+    email: tim@timlin.dev

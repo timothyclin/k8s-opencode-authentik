@@ -1,0 +1,77 @@
+# Authentik domain (must match Tailscale ingress)
+domain: "authentik.example.ts.net"
+
+# CRITICAL: Change this to a secure 32+ character random string
+secretKey: "CHANGE-ME-TO-SECURE-32-CHAR-STRING"
+
+# Proxy configuration for cookie domain
+proxy:
+  enabled: true
+  hostname: "authentik.example.ts.net"
+  cookieDomain: ".example.ts.net"
+
+# Authentik server image
+image:
+  repository: ghcr.io/goauthentik/server
+  tag: "2026.2.2"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+# PostgreSQL configuration
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "15"
+  database: "authentik"
+  username: "authentik"
+  password: "authentikpassword"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# Redis configuration
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: "7-alpine"
+  password: "redispassword"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Tailscale ingress
+ingress:
+  enabled: true
+  hostname: "authentik"
+  tailscale:
+    proxyTag: "tag:k8s"
+
+# OIDC configuration (for external apps like OpenCode)
+oidc:
+  enabled: false
+  issuerUrl: ""
+  clientId: ""
+  clientSecret: ""
+  scopes: ["openid", "email", "profile"]
