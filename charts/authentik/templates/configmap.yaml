@@ -13,8 +13,8 @@ data:
     # Database
     database:
       host: {{ include "authentik.fullname" . }}-authentik-postgres
-      name: {{ .Values.postgres.database }}
-      user: {{ .Values.postgres.username }}
+      name: {{ .Values.authentik.postgres.database }}
+      user: {{ .Values.authentik.postgres.username }}
       password: /secrets/postgresPassword
 
     # Redis
@@ -28,7 +28,7 @@ data:
 
     # OIDC provider settings (configured via UI after deployment)
     oidc:
-      enabled: {{ .Values.oidc.enabled }}
-      {{- if .Values.oidc.issuerUrl }}
-      issuer_url: {{ .Values.oidc.issuerUrl }}
+      enabled: {{ .Values.authentik.oidc.enabled }}
+      {{- if .Values.authentik.oidc.issuerUrl }}
+      issuer_url: {{ .Values.authentik.oidc.issuerUrl }}
       {{- end }}

@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: authentik
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.authentik.replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: authentik
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: authentik
-        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        image: {{ .Values.authentik.image.repository }}:{{ .Values.authentik.image.tag }}
         command: ["ak", "server"]
         env:
         - name: AUTHENTIK_BOOTSTRAP_PASSWORD
