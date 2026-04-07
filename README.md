@@ -4,8 +4,18 @@ Standalone Helm chart for deploying Authentik Identity-Aware Proxy in Kubernetes
 
 ## Installation
 
+### From source (development)
+
 ```bash
 helm install authentik ./charts/authentik \
+  -n authentik --create-namespace \
+  -f values.yaml
+```
+
+### From GHCR (production)
+
+```bash
+helm install authentik oci://ghcr.io/timothyclin/k8s-opencode-authentik/chart/authentik \
   -n authentik --create-namespace \
   -f values.yaml
 ```

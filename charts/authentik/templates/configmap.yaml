@@ -1,4 +1,3 @@
-{{- if .Values.authentik.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -30,7 +29,6 @@ data:
     # OIDC provider settings (configured via UI after deployment)
     oidc:
       enabled: {{ .Values.oidc.enabled }}
-      {{- if .Values.authentik.oidc.issuerUrl }}
+      {{- if .Values.oidc.issuerUrl }}
       issuer_url: {{ .Values.oidc.issuerUrl }}
       {{- end }}
-{{- end }}

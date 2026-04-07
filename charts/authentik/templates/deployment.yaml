@@ -1,4 +1,3 @@
-{{- if .Values.authentik.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -40,7 +39,7 @@ spec:
         - name: secrets
           mountPath: /secrets
         resources:
-{{ toYaml .Values.authentik.resources | nindent 10 }}
+{{ toYaml .Values.resources | nindent 10 }}
       volumes:
       - name: config
         configMap:
@@ -48,4 +47,3 @@ spec:
       - name: secrets
         secret:
           secretName: {{ include "authentik.fullname" . }}-authentik
-{{- end }}

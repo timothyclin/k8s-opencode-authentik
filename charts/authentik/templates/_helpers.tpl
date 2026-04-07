@@ -3,7 +3,7 @@ Expand the name of the chart.
 */}}
 {{- define "authentik.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
-{{- end }}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -18,15 +18,16 @@ Create a default fully qualified app name.
 {{- else }}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
 {{- end }}
-{{- end }}
-{{- end }}
-
+{{- end -}}
+{{- end -}}
+ 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "authentik.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-{{- end }}
+{{- end -}}
+
 
 {{/*
 Common labels
@@ -36,9 +37,9 @@ helm.sh/chart: {{ include "authentik.chart" . }}
 {{ include "authentik.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
+{{- end -}}
 
 {{/*
 Selector labels
@@ -57,4 +58,4 @@ Create the name of the service account to use
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
-{{- end }}
+{{- end -}}
