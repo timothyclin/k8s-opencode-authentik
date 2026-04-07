@@ -1,0 +1,38 @@
+name: Publish Chart
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Helm
+      run: |
+        curl https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz -o helm.tar.gz
+        tar -zxvf helm.tar.gz
+        sudo mv linux-amd64/helm /usr/local/bin/helm
+
+    - name: Update Chart Version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        yq -i ".version = \"$VERSION\"" charts/authentik/Chart.yaml
+        yq -i ".appVersion = \"$VERSION\"" charts/authentik/Chart.yaml
+
+    - name: Package Chart
+      run: |
+        helm package charts/authentik
+
+    - name: Login to GHCR
+      run: |
+        echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push Chart
+      run: |
+        helm push authentik-*.tgz oci://ghcr.io/timothyclin/k8s-opencode-authentik/chart

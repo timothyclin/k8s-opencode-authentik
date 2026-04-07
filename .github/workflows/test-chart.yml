@@ -1,0 +1,27 @@
+name: Test Chart
+
+on:
+  pull_request:
+    paths:
+      - 'charts/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Helm
+      run: |
+        curl https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz -o helm.tar.gz
+        tar -zxvf helm.tar.gz
+        sudo mv linux-amd64/helm /usr/local/bin/helm
+
+    - name: Install chart-testing
+      run: |
+        curl -Lo ct.tar.gz https://github.com/helm/chart-testing/releases/download/v3.8.0/chart-testing_3.8.0_linux-amd64.tar.gz
+        tar -xzf ct.tar.gz
+        sudo mv ct /usr/local/bin/ct
+
+    - name: Run chart-testing
+      run: ct lint --charts charts/authentik
