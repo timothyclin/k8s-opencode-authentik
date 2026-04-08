@@ -40,6 +40,8 @@ Choose the Kubernetes storage class for persistent volumes.
    
    Selected storage class: ________ (fill in your choice)
 
+   **⚠️ IMPORTANT:** If no storage classes are available or you're unsure, use `standard` or contact your cluster administrator. The installation may fail if the selected storage class doesn't exist.
+
 **IMPORTANT:** Once chosen, substitute `{{NAMESPACE}}` with your selected namespace and `{{STORAGE_CLASS}}` with your selected storage class in ALL subsequent commands and files.
 
 ## PostgreSQL Deployment
@@ -108,6 +110,8 @@ EOF
     kubectl get pods -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
     kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=authentik -n {{NAMESPACE}} --timeout=300s
    ```
+   
+   **Note:** During initial setup, pods may show "Running" but not "Ready" while database migrations complete. This is normal and can take 5-10 minutes.
 
 ## Authentik Setup
 
@@ -186,7 +190,15 @@ If any step fails:
 
 1. **PostgreSQL issues**: Check `kubectl describe postgresql/<cluster-name>` and `kubectl logs deployment/postgresql-operator-controller-manager -n cnpg-system`
 
-2. **Authentik issues**: Check `kubectl logs -l app.kubernetes.io/name=authentik -n {{NAMESPACE}} --tail=100`
+2. **Storage class issues**: If PostgreSQL pods are stuck in "Pending" state, check storage class availability with `kubectl get storageclass` and verify PVC creation with `kubectl get pvc -n {{NAMESPACE}}`
+
+3. **Authentik issues**: Check `kubectl logs -l app.kubernetes.io/name=authentik -n {{NAMESPACE}} --tail=100`
+
+4. **Prometheus CRD issues**: If Helm install fails with Prometheus errors, disable monitoring in values.yaml: `prometheus.rules.enabled: false`
+
+5. **Ingress issues**: If web interface is inaccessible, check ingress with `kubectl get ingress -n {{NAMESPACE}}` and ensure ingress controller is running
+
+6. **Database lock issues**: During initial setup, pods may show "Running" but not "Ready" while database migrations complete. Wait 5-10 minutes and check health endpoints.
 
 3. **General troubleshooting**: See https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md
 

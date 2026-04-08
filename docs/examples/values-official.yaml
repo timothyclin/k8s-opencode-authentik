@@ -69,7 +69,7 @@ geoip:
 # Prometheus monitoring
 prometheus:
   rules:
-    enabled: true
+    enabled: false
 
 # Disable bundled PostgreSQL
 postgresql:
