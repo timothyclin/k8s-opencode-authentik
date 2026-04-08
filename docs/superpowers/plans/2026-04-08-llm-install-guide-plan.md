@@ -47,8 +47,8 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 2. Generate secrets placeholder file:
    ```bash
    cat > values-postgres-secrets.yaml << 'EOF'
-   # Replace YOUR_DATABASE_PASSWORD_HERE with your actual database password
-   # Generate a strong password and replace the placeholder
+   # This file is not actually used in the current implementation
+   # PostgreSQL cluster auto-generates passwords
    postgresql:
      auth:
        postgresPassword: "YOUR_DATABASE_PASSWORD_HERE"
@@ -58,7 +58,7 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
    EOF
    ```
 
-   **Human Action Required:** Replace `YOUR_DATABASE_PASSWORD_HERE` with actual passwords in `values-postgres-secrets.yaml`
+   **Note:** This file is created for documentation but not used - CloudNativePG auto-generates secure passwords
 
 3. Apply the PostgreSQL cluster:
    ```bash
@@ -142,7 +142,7 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 
 Remove placeholder files after installation:
 ```bash
-rm values-postgres-secrets.yaml values-authentik-secrets.yaml oidc-secrets.yaml
+rm postgres_password.txt authentik_secret_key.txt values-authentik-secrets.yaml postgresql-cluster.yaml values.yaml oidc-client-config.yaml
 ```
 ```
 
