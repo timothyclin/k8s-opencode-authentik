@@ -137,29 +137,44 @@ Choose the Kubernetes storage class for persistent volumes.
 
 3. #### Configure Ingress (if selected)
 
-   **Skip this step if INGRESS_CLASS is "none".**
-
-   Create ingress configuration file:
+   Create ingress configuration file (skip if INGRESS_CLASS is "none"):
    ```bash
-   cat > ingress.yaml << EOF
+   INGRESS_CLASS="{{INGRESS_CLASS}}"
+   INGRESS_HOST="{{INGRESS_HOST}}"
+   NAMESPACE="{{NAMESPACE}}"
+   
+   if [ "$INGRESS_CLASS" != "none" ]; then
+     cat > ingress.yaml << EOF
    apiVersion: networking.k8s.io/v1
    kind: Ingress
    metadata:
      name: authentik
-     namespace: {{NAMESPACE}}
+     namespace: $NAMESPACE
+   EOF
+   
+   if [ "$INGRESS_CLASS" = "tailscale" ]; then
+     cat >> ingress.yaml << EOF
      annotations:
-       {{- if eq .IngressClass "tailscale" }}
        tailscale.com/tags: "tag:k8s"
-       {{- end }}
+   EOF
+   fi
+   
+   cat >> ingress.yaml << EOF
    spec:
-     ingressClassName: {{INGRESS_CLASS}}
-     {{- if eq .IngressClass "tailscale" }}
+     ingressClassName: $INGRESS_CLASS
+   EOF
+   
+   if [ "$INGRESS_CLASS" = "tailscale" ]; then
+     cat >> ingress.yaml << EOF
      tls:
      - hosts:
-       - {{INGRESS_HOST}}
-     {{- end }}
+       - $INGRESS_HOST
+   EOF
+   fi
+   
+   cat >> ingress.yaml << EOF
      rules:
-     - host: {{INGRESS_HOST}}
+     - host: $INGRESS_HOST
        http:
          paths:
          - path: /
@@ -169,24 +184,30 @@ Choose the Kubernetes storage class for persistent volumes.
                name: authentik-server
                port:
                  name: https
-     {{- if eq .IngressClass "nginx" }}
+   EOF
+   
+   if [ "$INGRESS_CLASS" = "nginx" ]; then
+     cat >> ingress.yaml << EOF
      tls:
      - hosts:
-       - {{INGRESS_HOST}}
+       - $INGRESS_HOST
        secretName: authentik-tls
-     {{- end }}
    EOF
-   ```
-
-   Apply the ingress:
-   ```bash
+   fi
+   
+   cat >> ingress.yaml << EOF
+   EOF
+   
    kubectl apply -f ingress.yaml
-   ```
-
-   **For Tailscale:** Wait for domain assignment:
-   ```bash
-   kubectl get ingress authentik -n {{NAMESPACE}}
-   # Look for ADDRESS column - this will be your full URL (e.g., auth.{tailnet}.ts.net)
+   
+   if [ "$INGRESS_CLASS" = "tailscale" ]; then
+     echo "Wait for domain assignment:"
+     kubectl get ingress authentik -n $NAMESPACE
+     echo "# Look for ADDRESS column - this will be your full URL (e.g., auth.{tailnet}.ts.net)"
+   fi
+   else
+     echo "Skipping ingress creation since INGRESS_CLASS is 'none'"
+   fi
    ```
 
 ## Authentik Installation
