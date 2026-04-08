@@ -224,7 +224,15 @@ EOF
    
    **Note:** During initial setup, pods may show "Running" but not "Ready" while database migrations complete. This is normal and can take 5-10 minutes.
 
+5. **Complete Authentik Initial Setup:**
+   - Visit https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/if/flow/initial-setup/ (for Tailscale) or https://{{INGRESS_HOST}}/if/flow/initial-setup/ (for other ingress)
+   - Follow the web interface to complete the initial Authentik configuration
+   - Set up the first admin user and basic settings
+   - **Important:** Do not proceed to the next section until initial setup is complete
+
 ## Authentik Setup
+
+**Prerequisite:** Ensure you have completed the initial Authentik setup at https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/if/flow/initial-setup/ before proceeding.
 
 1. Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/authentik-setup.md to set up users, groups, and policies
 
