@@ -17,6 +17,17 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
    - For kubectl/helm: Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/prerequisites.md
    - For CloudNativePG: Run `kubectl apply -f https://github.com/cloudnative-pg/cloudnative-pg/releases/download/v1.22.1/cnpg-1.22.1.yaml`
 
+## Namespace Selection
+
+**Human Action Required:** Choose the Kubernetes namespace for Authentik deployment.
+
+- **Suggested default:** `authentik`
+- **Alternative:** Use any valid namespace name (e.g., `identity`, `auth`, `security`)
+
+**IMPORTANT:** Once chosen, substitute `{{NAMESPACE}}` with your selected namespace in ALL subsequent commands. For example, if you choose `identity`, replace `kubectl create namespace {{NAMESPACE}}` with `kubectl create namespace identity`.
+
+Selected namespace: ________ (fill in your choice, default: `authentik`)
+
 ## PostgreSQL Deployment
 
 1. Deploy CloudNativePG cluster using https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/postgresql-setup.md
@@ -28,48 +39,21 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 
 2. Apply the PostgreSQL cluster:
    ```bash
-   # Create namespace first
-   kubectl create namespace authentik
-   
-   # Apply cluster configuration
-   kubectl apply -f postgresql-cluster.yaml
+    # Create namespace first
+    kubectl create namespace {{NAMESPACE}}
+    
+    # Apply cluster configuration
+    kubectl apply -f postgresql-cluster.yaml
    ```
 
 3. Wait for PostgreSQL to be ready and retrieve the database password securely:
    ```bash
-   # Wait for cluster
-   kubectl wait --for=condition=Ready cluster/authentik-db -n authentik --timeout=300s
-   
-   # Save database password to file (secure - not displayed)
-   kubectl get secret authentik-db-app -n authentik -o jsonpath='{.data.password}' | base64 -d > postgres_password.txt
-   ```
-
-2. Generate secrets placeholder file:
-   ```bash
-   cat > values-postgres-secrets.yaml << 'EOF'
-   # Replace YOUR_DATABASE_PASSWORD_HERE with your actual database password
-   # Generate a strong password and replace the placeholder
-   postgresql:
-     auth:
-       postgresPassword: "YOUR_DATABASE_PASSWORD_HERE"
-       username: "authentik"
-       password: "YOUR_DATABASE_PASSWORD_HERE"
-       database: "authentik"
-   EOF
-   ```
-
-   **Human Action Required:** Replace `YOUR_DATABASE_PASSWORD_HERE` with actual passwords in `values-postgres-secrets.yaml`
-
-3. Apply the PostgreSQL cluster:
-   ```bash
-   kubectl apply -f postgresql-cluster.yaml
-   ```
-
-4. Wait for PostgreSQL to be ready:
-   ```bash
-   kubectl get postgresql
-   kubectl wait --for=condition=Ready postgresql/<cluster-name> --timeout=300s
-   ```
+    # Wait for cluster
+    kubectl wait --for=condition=Ready cluster/authentik-db -n {{NAMESPACE}} --timeout=300s
+    
+    # Save database password to file (secure - not displayed)
+    kubectl get secret authentik-db-app -n {{NAMESPACE}} -o jsonpath='{.data.password}' | base64 -d > postgres_password.txt
+    ```
 
 ## Authentik Installation
 
@@ -96,15 +80,15 @@ EOF
 
 3. Install Authentik:
    ```bash
-   helm repo add authentik https://charts.goauthentik.io
-   helm repo update
-   helm install authentik authentik/authentik -f values.yaml -f values-authentik-secrets.yaml
+    helm repo add authentik https://charts.goauthentik.io
+
+    helm install authentik authentik/authentik -f values.yaml -f values-authentik-secrets.yaml --namespace {{NAMESPACE}}
    ```
 
 4. Wait for Authentik to be ready:
    ```bash
-   kubectl get pods -l app.kubernetes.io/name=authentik
-   kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=authentik --timeout=300s
+    kubectl get pods -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
+    kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=authentik -n {{NAMESPACE}} --timeout=300s
    ```
 
 ## Authentik Setup
@@ -113,9 +97,9 @@ EOF
 
 2. Access Authentik admin interface:
    ```bash
-   # Find the ingress URL
-   kubectl get ingress -l app.kubernetes.io/name=authentik
-   # Look for the HOSTS column - this will be your admin URL
+    # Find the ingress URL
+    kubectl get ingress -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
+    # Look for the HOSTS column - this will be your admin URL
    # Example: https://authentik.yourdomain.com/admin/
    ```
    Default credentials: admin / admin (change after first login)
@@ -159,20 +143,20 @@ EOF
 
 1. Test Authentik login flow:
    ```bash
-   # Access admin interface and verify login works
-   kubectl get ingress -l app.kubernetes.io/name=authentik
+    # Access admin interface and verify login works
+    kubectl get ingress -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
    ```
 
 2. Verify OIDC integration:
    ```bash
-   # Check if OIDC config was applied
-   kubectl get configmaps,secrets -l app.kubernetes.io/name=authentik
+    # Check if OIDC config was applied
+    kubectl get configmaps,secrets -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
    ```
 
 3. Test basic connectivity:
    ```bash
-   # Check all pods are running
-   kubectl get pods -l app.kubernetes.io/name=authentik
+    # Check all pods are running
+    kubectl get pods -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
    kubectl get pods -l cnpg.io/cluster
    ```
 
@@ -184,12 +168,12 @@ If any step fails:
 
 1. **PostgreSQL issues**: Check `kubectl describe postgresql/<cluster-name>` and `kubectl logs deployment/postgresql-operator-controller-manager -n cnpg-system`
 
-2. **Authentik issues**: Check `kubectl logs -l app.kubernetes.io/name=authentik --tail=100`
+2. **Authentik issues**: Check `kubectl logs -l app.kubernetes.io/name=authentik -n {{NAMESPACE}} --tail=100`
 
 3. **General troubleshooting**: See https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md
 
 4. **Rollback if needed**:
    ```bash
-   helm uninstall authentik
-   kubectl delete postgresql/<cluster-name>
+   helm uninstall authentik --namespace {{NAMESPACE}}
+   kubectl delete postgresql/<cluster-name> -n {{NAMESPACE}}
    ```

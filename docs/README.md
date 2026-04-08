@@ -17,7 +17,7 @@ For the impatient:
 | [Prerequisites](prerequisites.md) | System requirements | 5 min |
 | [PostgreSQL Setup](postgresql-setup.md) | CloudNativePG operator | 10 min |
 | [Authentik Deployment](authentik-deployment.md) | Official Helm chart | 15 min |
-| [Authentik Config](multi-user-config.md) | Tenants and users | 20 min |
+| [Authentik Setup](authentik-setup.md) | Users, groups, policies | 20 min |
 | [OIDC Integration](oidc-integration.md) | k8s-opencode setup | 15 min |
 | [Troubleshooting](troubleshooting.md) | Common issues | As needed |
 

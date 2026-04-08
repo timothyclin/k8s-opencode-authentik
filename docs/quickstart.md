@@ -74,7 +74,7 @@ open https://authentik.yourdomain.com
 # Note: If the values file doesn't include bootstrap settings, you may need to manually set up the admin user or update the values file with authentik.bootstrap_password.
 ```
 
-## 4. Configure Multi-User (10 minutes)
+## 4. Configure Authentik (10 minutes)
 
 ### Create OIDC Application
 
@@ -121,7 +121,7 @@ kubectl exec -n authentik deployment/authentik-worker -- ak test-db
 
 ## Next Steps
 
-- [Configure users and groups](multi-user-config.md)
+- [Configure users and groups](authentik-setup.md)
 - [Set up OIDC integration](oidc-integration.md)
 - [Troubleshoot issues](troubleshooting.md)
 
