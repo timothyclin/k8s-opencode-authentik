@@ -4,11 +4,11 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 
 ## Security Requirements for AI Agents
 
-**IMPORTANT:** AI agents must NEVER handle, store, or transmit sensitive information such as passwords, cryptographic keys, or tokens. Always generate placeholder files and cue humans to provide actual values. See AGENTS.md for detailed security guidelines.
+**IMPORTANT:** AI agents must NEVER handle, store, or transmit sensitive information such as passwords, cryptographic keys, or tokens. Always generate placeholder files and cue humans to provide actual values. See https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/AGENTS.md for detailed security guidelines.
 
 ## Prerequisites Check
 
-1. Verify system requirements using `docs/prerequisites.md`
+1. Verify system requirements using https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/prerequisites.md
    - Run: `kubectl version --client`
    - Run: `helm version`
    - Ensure CloudNativePG operator is available
@@ -17,11 +17,11 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 
 ## PostgreSQL Deployment
 
-1. Deploy CloudNativePG cluster using `docs/postgresql-setup.md`
+1. Deploy CloudNativePG cluster using https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/postgresql-setup.md
 
-   Create `postgresql-cluster.yaml` from `docs/examples/postgresql-cluster.yaml`:
+   Create `postgresql-cluster.yaml` from https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/postgresql-cluster.yaml:
    ```bash
-   cp docs/examples/postgresql-cluster.yaml postgresql-cluster.yaml
+   curl -s https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/postgresql-cluster.yaml -o postgresql-cluster.yaml
    ```
 
 2. Generate secrets placeholder file:
@@ -52,11 +52,11 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 
 ## Authentik Installation
 
-1. Install Authentik using official Helm chart from `docs/authentik-deployment.md`
+1. Install Authentik using official Helm chart from https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/authentik-deployment.md
 
    Create values file from example:
    ```bash
-   cp docs/examples/values-official.yaml values.yaml
+   curl -s https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/values-official.yaml -o values.yaml
    ```
 
 2. Generate secrets placeholder file:
@@ -86,7 +86,7 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 
 ## Multi-User Configuration
 
-1. Follow `docs/multi-user-config.md` to set up users, groups, and policies
+1. Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/multi-user-config.md to set up users, groups, and policies
 
 2. Access Authentik admin interface (URL from ingress)
 
@@ -103,9 +103,12 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 
 ## OIDC Integration
 
-1. Configure k8s-opencode integration using `docs/oidc-integration.md`
+1. Configure k8s-opencode integration using https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/oidc-integration.md
 
-2. Update `docs/examples/oidc-client-config.yaml` with actual values
+2. Update https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/oidc-client-config.yaml with actual values:
+   ```bash
+   curl -s https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/oidc-client-config.yaml -o oidc-client-config.yaml
+   ```
 
 3. Apply OIDC configuration:
    ```bash
@@ -116,7 +119,7 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 
 1. Test Authentik login flow
 2. Verify OIDC integration with k8s-opencode
-3. Run troubleshooting checks from `docs/troubleshooting.md` if issues occur
+3. Run troubleshooting checks from https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md if issues occur
 
 ## Cleanup
 
