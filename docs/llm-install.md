@@ -326,15 +326,19 @@ EOF
 
 2. Access Authentik admin interface:
    ```bash
-    # Find the ingress URL(s)
-    kubectl get ingress -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
-    
-    # For nginx ingress: Look for HOSTS column (e.g., authentik.local)
-    # For Tailscale ingress: Look for ADDRESS column (e.g., auth.{tailnet}.ts.net)
-    
-    # Admin URL: https://[hostname]/admin/
-    ```
-    Default credentials: admin / admin (change after first login)
+   # Find the ingress URL(s)
+   kubectl get ingress -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
+   
+   {{- if eq .IngressClass "tailscale" }}
+   # For Tailscale ingress: Look for ADDRESS column
+   # Your admin URL: https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/admin/
+   {{- else }}
+   # For other ingress: Look for HOSTS column
+   # Your admin URL: https://{{INGRESS_HOST}}/admin/
+   {{- end }}
+   
+   Default credentials: admin / admin (change after first login)
+   ```
 
 3. Generate OIDC client configuration:
    ```bash
