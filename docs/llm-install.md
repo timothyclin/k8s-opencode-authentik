@@ -66,14 +66,45 @@ Choose the Kubernetes storage class for persistent volumes.
     kubectl apply -f postgresql-cluster.yaml
    ```
 
-3. Wait for PostgreSQL to be ready and retrieve the database password securely:
+3. **Optional: Enable Tailscale Ingress** (for secure tailnet access)
+   
+   Check if Tailscale ingress is available:
    ```bash
-    # Wait for cluster
-    kubectl wait --for=condition=Ready cluster/authentik-db -n {{NAMESPACE}} --timeout=300s
-    
-    # Save database password to file (secure - not displayed)
-    kubectl get secret authentik-db-app -n {{NAMESPACE}} -o jsonpath='{.data.password}' | base64 -d > postgres_password.txt
-    ```
+   kubectl get ingressclass | grep tailscale
+   ```
+   
+   If available, create Tailscale ingress for secure access:
+   ```bash
+   cat > tailscale-ingress.yaml << EOF
+   apiVersion: networking.k8s.io/v1
+   kind: Ingress
+   metadata:
+     name: authentik-tailscale
+     namespace: {{NAMESPACE}}
+     annotations:
+       tailscale.com/hostname: "authentik"
+   spec:
+     ingressClassName: tailscale
+     rules:
+     - http:
+         paths:
+         - path: /
+           pathType: Prefix
+           backend:
+             service:
+               name: authentik-server
+               port:
+                 number: 443
+   EOF
+   
+   kubectl apply -f tailscale-ingress.yaml
+   ```
+   
+   Wait for Tailscale domain assignment:
+   ```bash
+   kubectl get ingress authentik-tailscale -n {{NAMESPACE}}
+   # Look for ADDRESS column - this will be your Tailscale domain (e.g., authentik-*.ts.net)
+   ```
 
 ## Authentik Installation
 
@@ -119,12 +150,15 @@ EOF
 
 2. Access Authentik admin interface:
    ```bash
-    # Find the ingress URL
+    # Find the ingress URL(s)
     kubectl get ingress -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
-    # Look for the HOSTS column - this will be your admin URL
-   # Example: https://authentik.yourdomain.com/admin/
-   ```
-   Default credentials: admin / admin (change after first login)
+    
+    # For nginx ingress: Look for HOSTS column (e.g., authentik.local)
+    # For Tailscale ingress: Look for ADDRESS column (e.g., authentik-*.ts.net)
+    
+    # Admin URL: https://[hostname]/admin/
+    ```
+    Default credentials: admin / admin (change after first login)
 
 3. Generate OIDC client configuration:
    ```bash
@@ -165,8 +199,11 @@ EOF
 
 1. Test Authentik login flow:
    ```bash
-    # Access admin interface and verify login works
-    kubectl get ingress -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
+    # Check ingress status
+    kubectl get ingress -n {{NAMESPACE}}
+    
+    # Test nginx ingress: curl http://authentik.local/-/health/live/
+    # Test Tailscale ingress: curl https://[tailscale-domain]/-/health/live/
    ```
 
 2. Verify OIDC integration:
