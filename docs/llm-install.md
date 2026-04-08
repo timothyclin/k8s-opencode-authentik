@@ -109,7 +109,7 @@ Choose the Kubernetes storage class for persistent volumes.
    
    Selected storage class: ________ (fill in your choice)
 
-   **⚠️ IMPORTANT:** If no storage classes are available or you're unsure, use `standard` or contact your cluster administrator. The installation may fail if the selected storage class doesn't exist.
+    **IMPORTANT:** If no storage classes are available or you're unsure, use `standard` or contact your cluster administrator. The installation may fail if the selected storage class doesn't exist.
 
 **IMPORTANT:** Once chosen, substitute `{{NAMESPACE}}` with your selected namespace and `{{STORAGE_CLASS}}` with your selected storage class in ALL subsequent commands and files.
 
@@ -188,18 +188,30 @@ Choose the Kubernetes storage class for persistent volumes.
    ```
 
 2. Generate Authentik secrets securely:
-   ```bash
-   # Generate secure secret key and save to file
-   openssl rand -base64 32 > authentik_secret_key.txt
-   
-   # Create Authentik secrets file using saved passwords (no display)
-   cat > values-authentik-secrets.yaml << EOF
-authentik:
-  secret_key: "$(cat authentik_secret_key.txt)"
-  postgresql:
-    password: "$(cat postgres_password.txt)"
-EOF
-   ```
+
+    **Human Action Required:** Create the following files with actual secret values (do NOT commit these files to version control):
+
+    ```bash
+    # Create placeholder for Authentik secret key (generate 50+ character random string)
+    cat > authentik_secret_key.txt << 'EOF'
+    YOUR_AUTHENTIK_SECRET_KEY_HERE
+    EOF
+    
+    # Create placeholder for PostgreSQL password
+    cat > postgres_password.txt << 'EOF'
+    YOUR_DATABASE_PASSWORD_HERE
+    EOF
+    
+    # Create Authentik secrets file (replace placeholders with actual values)
+    cat > values-authentik-secrets.yaml << 'EOF'
+    authentik:
+      secret_key: "YOUR_AUTHENTIK_SECRET_KEY_HERE"
+      postgresql:
+        password: "YOUR_DATABASE_PASSWORD_HERE"
+    EOF
+    ```
+
+    **IMPORTANT:** Replace `YOUR_AUTHENTIK_SECRET_KEY_HERE` and `YOUR_DATABASE_PASSWORD_HERE` with actual secure values. Never commit these files.
 
 3. Install Authentik:
    ```bash
@@ -309,9 +321,9 @@ If any step fails:
 
 6. **Database lock issues**: During initial setup, pods may show "Running" but not "Ready" while database migrations complete. Wait 5-10 minutes and check health endpoints.
 
-3. **General troubleshooting**: See https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md
+7. **General troubleshooting**: See https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md
 
-4. **Rollback if needed**:
+8. **Rollback if needed**:
    ```bash
    helm uninstall authentik --namespace {{NAMESPACE}}
    kubectl delete postgresql/<cluster-name> -n {{NAMESPACE}}
