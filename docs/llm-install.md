@@ -379,14 +379,14 @@ EOF
    ```bash
    # Check ingress status
    kubectl get ingress -n {{NAMESPACE}}
-   
-   {{- if eq .IngressClass "tailscale" }}
-   # Test Tailscale ingress
-   curl -k https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/-/health/live/
-   {{- else }}
-   # Test other ingress
-   curl https://{{INGRESS_HOST}}/-/health/live/
-   {{- end }}
+    
+    if [ "$INGRESS_CLASS" = "tailscale" ]; then
+      # Test Tailscale ingress
+      curl -k https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/-/health/live/
+    else
+      # Test other ingress
+      curl https://{{INGRESS_HOST}}/-/health/live/
+    fi
    ```
 
 2. Verify OIDC integration:
