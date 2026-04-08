@@ -416,13 +416,22 @@ If any step fails:
 
 4. **Prometheus CRD issues**: If Helm install fails with Prometheus errors, disable monitoring in values.yaml: `prometheus.rules.enabled: false`
 
-5. **Ingress issues**: If web interface is inaccessible, check ingress with `kubectl get ingress -n {{NAMESPACE}}` and ensure ingress controller is running
+5. **Ingress issues:**
+   - If ingress fails to create: Check `kubectl describe ingress authentik -n {{NAMESPACE}}`
+   - For Tailscale: Ensure tailscale operator is running: `kubectl get pods -n tailscale-system`
+   - For nginx/traefik: Ensure ingress controller is deployed
+   - Invalid hostname errors: Re-run hostname validation from Ingress Configuration section
 
-6. **Database lock issues**: During initial setup, pods may show "Running" but not "Ready" while database migrations complete. Wait 5-10 minutes and check health endpoints.
+6. **Domain resolution issues:**
+   - Tailscale domains may take 1-2 minutes to propagate
+   - Check `tailscale status` for connectivity issues
+   - Verify tailnet name is correct in configuration
 
-7. **General troubleshooting**: See https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md
+7. **Database lock issues**: During initial setup, pods may show "Running" but not "Ready" while database migrations complete. Wait 5-10 minutes and check health endpoints.
 
-8. **Rollback if needed**:
+8. **General troubleshooting**: See https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md
+
+9. **Rollback if needed**:
    ```bash
    helm uninstall authentik --namespace {{NAMESPACE}}
    kubectl delete postgresql/<cluster-name> -n {{NAMESPACE}}
