@@ -135,25 +135,31 @@ Choose the Kubernetes storage class for persistent volumes.
     kubectl apply -f postgresql-cluster.yaml
    ```
 
-3. **Optional: Enable Tailscale Ingress** (for secure tailnet access)
-   
-   Check if Tailscale ingress is available:
+3. #### Configure Ingress (if selected)
+
+   **Skip this step if INGRESS_CLASS is "none".**
+
+   Create ingress configuration file:
    ```bash
-   kubectl get ingressclass | grep tailscale
-   ```
-   
-   If available, create Tailscale ingress for secure access:
-   ```bash
-   cat > tailscale-ingress.yaml << EOF
+   cat > ingress.yaml << EOF
    apiVersion: networking.k8s.io/v1
    kind: Ingress
    metadata:
-     name: auth
+     name: authentik
      namespace: {{NAMESPACE}}
+     annotations:
+       {{- if eq .IngressClass "tailscale" }}
+       tailscale.com/tags: "tag:k8s"
+       {{- end }}
    spec:
-     ingressClassName: tailscale
+     ingressClassName: {{INGRESS_CLASS}}
+     {{- if eq .IngressClass "tailscale" }}
+     tls:
+     - hosts:
+       - {{INGRESS_HOST}}
+     {{- end }}
      rules:
-     - host: auth
+     - host: {{INGRESS_HOST}}
        http:
          paths:
          - path: /
@@ -163,19 +169,24 @@ Choose the Kubernetes storage class for persistent volumes.
                name: authentik-server
                port:
                  name: https
+     {{- if eq .IngressClass "nginx" }}
      tls:
      - hosts:
-       - auth
-       secretName: auth-tls
+       - {{INGRESS_HOST}}
+       secretName: authentik-tls
+     {{- end }}
    EOF
-   
-   kubectl apply -f tailscale-ingress.yaml
    ```
-   
-   Wait for Tailscale domain assignment:
+
+   Apply the ingress:
    ```bash
-   kubectl get ingress auth -n {{NAMESPACE}}
-   # Look for ADDRESS column - this will be your short Tailscale domain (e.g., auth.{tailnet}.ts.net)
+   kubectl apply -f ingress.yaml
+   ```
+
+   **For Tailscale:** Wait for domain assignment:
+   ```bash
+   kubectl get ingress authentik -n {{NAMESPACE}}
+   # Look for ADDRESS column - this will be your full URL (e.g., auth.{tailnet}.ts.net)
    ```
 
 ## Authentik Installation
