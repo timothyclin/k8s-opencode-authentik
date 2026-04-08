@@ -9,13 +9,82 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 ## Prerequisites Check
 
 1. Verify system requirements using https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/prerequisites.md
-   - Run: `kubectl version --client`
-   - Run: `helm version`
-   - Check CloudNativePG operator: `kubectl get deployment -n cnpg-system` (should show postgresql-operator-controller-manager)
+    - Run: `kubectl version --client`
+    - Run: `helm version`
+    - Check CloudNativePG operator: `kubectl get deployment -n cnpg-system` (should show postgresql-operator-controller-manager)
 
 2. If prerequisites not met, guide human to install missing components:
-   - For kubectl/helm: Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/prerequisites.md
-   - For CloudNativePG: Run `kubectl apply -f https://github.com/cloudnative-pg/cloudnative-pg/releases/download/v1.22.1/cnpg-1.22.1.yaml`
+    - For kubectl/helm: Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/prerequisites.md
+    - For CloudNativePG: Run `kubectl apply -f https://github.com/cloudnative-pg/cloudnative-pg/releases/download/v1.22.1/cnpg-1.22.1.yaml`
+
+## Ingress Configuration
+
+This section configures how Authentik will be accessed from outside the cluster.
+
+### 1. Detect Available Ingress Classes
+
+List available ingress classes in your cluster:
+```bash
+kubectl get ingressclass
+```
+
+**Expected output example:**
+```
+NAME       CONTROLLER                     PARAMETERS   AGE
+nginx      k8s.io/ingress-nginx           <none>       30d
+tailscale  tailscale.com/ts-ingress       <none>       7d
+traefik    traefik.io/ingress-controller  <none>       15d
+```
+
+### 2. Choose Ingress Class
+
+Based on the available classes above:
+
+- **If `tailscale` is available:** Recommended for secure, short domain access
+- **If `nginx` is available:** Good for public-facing deployments
+- **If `traefik` is available:** Alternative ingress controller
+- **If none available:** Skip ingress configuration (use port-forwarding)
+
+**Selected ingress class:** ________ (fill in: tailscale, nginx, traefik, or none)
+
+### 3. Configure Hostname
+
+#### For Tailscale Ingress:
+**Recommended hostname:** `auth`
+
+This will create the URL: `auth.{your-tailnet}.ts.net`
+
+**Human Action Required:** Confirm your Tailscale tailnet name (found in Tailscale admin console or `tailscale status` command).
+
+**Your tailnet name:** ________ (e.g., mycompany, personal)
+
+**Resulting URL:** auth.{{TAILNET}}.ts.net
+
+**Custom hostname (optional):** ________ (leave blank to use 'auth', or enter custom like 'idp', 'login')
+
+#### For Other Ingress Classes:
+**Hostname:** ________ (e.g., authentik.yourdomain.com)
+
+### 4. Validate Configuration
+
+**IMPORTANT:** Hostname must be:
+- 1-63 characters long
+- Contain only lowercase letters, numbers, and hyphens
+- Start and end with alphanumeric characters
+- Not contain spaces or special characters
+
+**Validation check:**
+```bash
+# Test hostname format (replace YOUR_HOSTNAME)
+hostname="YOUR_HOSTNAME"
+if [[ "$hostname" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]] && [ ${#hostname} -le 63 ]; then
+  echo "✓ Valid hostname"
+else
+  echo "✗ Invalid hostname - please choose a different name"
+fi
+```
+
+**IMPORTANT:** Once chosen, substitute `{{INGRESS_CLASS}}` with your selected ingress class and `{{INGRESS_HOST}}` with your hostname in ALL subsequent commands and files.
 
 ## Configuration Setup
 
