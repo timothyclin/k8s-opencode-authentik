@@ -1,0 +1,76 @@
+# docs/examples/values-official.yaml
+# Complete Authentik Helm values for production deployment
+# Copy and customize for your environment
+
+authentik:
+  # Generate a secure 32-character secret key
+  # openssl rand -base64 32 | tr -d "=+/" | cut -c1-32
+  secret_key: "your-32-character-secret-key-here"
+  
+  # Email configuration (optional)
+  email:
+    host: "smtp.gmail.com"
+    port: 587
+    username: "your-email@gmail.com"
+    password: "your-app-password"
+    use_tls: true
+    from: "authentik@yourdomain.com"
+  
+  # External PostgreSQL (configured for CloudNativePG)
+  postgresql:
+    host: "authentik-db-rw.authentik.svc.cluster.local"
+    port: 5432
+    name: "app"
+    user: "app"
+    password: ""  # Set via secret
+
+# Server deployment
+server:
+  replicas: 2
+  image:
+    repository: ghcr.io/goauthentik/server
+    tag: "2026.2.2"
+  
+  ingress:
+    enabled: true
+    hosts:
+      - authentik.yourdomain.com
+    tls:
+      - secretName: authentik-tls
+        hosts:
+          - authentik.yourdomain.com
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# Worker deployment
+worker:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+
+# GeoIP (optional)
+geoip:
+  enabled: false
+
+# Prometheus monitoring
+prometheus:
+  rules:
+    enabled: true
+
+# Disable bundled PostgreSQL
+postgresql:
+  enabled: false

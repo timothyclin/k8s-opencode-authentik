@@ -1,0 +1,83 @@
+# docs/examples/oidc-client-config.yaml
+# Example OIDC client configurations for various applications
+
+---
+# k8s-opencode OIDC configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opencode-oidc-config
+  namespace: opencode
+data:
+  oidc.yaml: |
+    issuerUrl: "https://authentik.yourdomain.com/application/o/opencode/"
+    clientId: "opencode-client-id"
+    clientSecret: "opencode-client-secret"
+    redirectUrl: "https://opencode.yourdomain.com/oauth2/callback"
+    scopes:
+      - openid
+      - email
+      - profile
+      - groups
+    usernameClaim: "preferred_username"
+    emailClaim: "email"
+    groupsClaim: "groups"
+    usernamePrefix: "oidc:"
+    groupPrefix: "oidc:"
+
+---
+# Kubernetes API server OIDC config
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-apiserver-oidc
+  namespace: kube-system
+data:
+  oidc-config.yaml: |
+    issuerURL: "https://authentik.yourdomain.com/application/o/kubernetes/"
+    clientID: "kubernetes-client-id"
+    clientSecret: "kubernetes-client-secret"
+    usernameClaim: "email"
+    groupsClaim: "groups"
+    usernamePrefix: "oidc:"
+    groupPrefix: "oidc:"
+    requiredClaims:
+      hd: "yourdomain.com"
+
+---
+# Grafana OIDC configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-oidc
+  namespace: monitoring
+data:
+  grafana.ini: |
+    [auth.generic_oauth]
+    name = Authentik
+    enabled = true
+    allow_sign_up = true
+    client_id = grafana-client-id
+    client_secret = grafana-client-secret
+    scopes = openid email profile
+    auth_url = https://authentik.yourdomain.com/application/o/grafana/authorize/
+    token_url = https://authentik.yourdomain.com/application/o/grafana/token/
+    api_url = https://authentik.yourdomain.com/application/o/grafana/userinfo/
+    login_attribute_path = email
+    groups_attribute_path = groups
+    role_attribute_path = contains(groups[*], 'admin') && 'Admin' || contains(groups[*], 'editor') && 'Editor' || 'Viewer'
+
+---
+# ArgoCD OIDC configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-oidc
+  namespace: argocd
+data:
+  oidc.config: |
+    name: Authentik
+    issuer: https://authentik.yourdomain.com/application/o/argocd/
+    clientId: argocd-client-id
+    clientSecret: $argocd-oidc-secret:clientSecret
+    requestedScopes: ["openid", "profile", "email", "groups"]
