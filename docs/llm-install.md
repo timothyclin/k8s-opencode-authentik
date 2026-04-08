@@ -11,9 +11,11 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 1. Verify system requirements using https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/prerequisites.md
    - Run: `kubectl version --client`
    - Run: `helm version`
-   - Ensure CloudNativePG operator is available
+   - Check CloudNativePG operator: `kubectl get deployment -n cnpg-system` (should show postgresql-operator-controller-manager)
 
-2. If prerequisites not met, guide human to install missing components
+2. If prerequisites not met, guide human to install missing components:
+   - For kubectl/helm: Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/prerequisites.md
+   - For CloudNativePG: Run `kubectl apply -f https://github.com/cloudnative-pg/cloudnative-pg/releases/download/v1.22.1/cnpg-1.22.1.yaml`
 
 ## PostgreSQL Deployment
 
@@ -48,6 +50,7 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 4. Wait for PostgreSQL to be ready:
    ```bash
    kubectl get postgresql
+   kubectl wait --for=condition=Ready postgresql/<cluster-name> --timeout=300s
    ```
 
 ## Authentik Installation
@@ -82,24 +85,42 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 4. Wait for Authentik to be ready:
    ```bash
    kubectl get pods -l app.kubernetes.io/name=authentik
+   kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=authentik --timeout=300s
    ```
 
 ## Authentik Setup
 
 1. Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/authentik-setup.md to set up users, groups, and policies
 
-2. Access Authentik admin interface (URL from ingress)
+2. Access Authentik admin interface:
+   ```bash
+   # Find the ingress URL
+   kubectl get ingress -l app.kubernetes.io/name=authentik
+   # Look for the HOSTS column - this will be your admin URL
+   # Example: https://authentik.yourdomain.com/admin/
+   ```
+   Default credentials: admin / admin (change after first login)
 
-3. Generate OIDC secrets placeholder:
+3. Generate OIDC client configuration:
+   ```bash
+   # In Authentik admin UI:
+   # 1. Go to Applications > Applications
+   # 2. Create new application: "k8s-opencode"
+   # 3. Go to Providers > Create OAuth2/OpenID Provider
+   # 4. Configure provider settings
+   # 5. Copy Client ID and Client Secret
+   ```
+   
+   Then create placeholder file:
    ```bash
    cat > oidc-secrets.yaml << 'EOF'
-   # OIDC Client Configuration
+   # OIDC Client Configuration - replace with values from Authentik UI
    client_id: "YOUR_OIDC_CLIENT_ID_HERE"
    client_secret: "YOUR_OIDC_CLIENT_SECRET_HERE"
    EOF
    ```
 
-   **Human Action Required:** Configure OIDC client in Authentik UI, then replace placeholders
+   **Human Action Required:** Replace placeholders with actual Client ID and Secret from Authentik
 
 ## OIDC Integration
 
@@ -117,13 +138,39 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
 
 ## Validation
 
-1. Test Authentik login flow
-2. Verify OIDC integration with k8s-opencode
-3. Run troubleshooting checks from https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md if issues occur
+1. Test Authentik login flow:
+   ```bash
+   # Access admin interface and verify login works
+   kubectl get ingress -l app.kubernetes.io/name=authentik
+   ```
 
-## Cleanup
+2. Verify OIDC integration:
+   ```bash
+   # Check if OIDC config was applied
+   kubectl get configmaps,secrets -l app.kubernetes.io/name=authentik
+   ```
 
-Remove placeholder files after installation:
-```bash
-rm values-postgres-secrets.yaml values-authentik-secrets.yaml oidc-secrets.yaml
-```
+3. Test basic connectivity:
+   ```bash
+   # Check all pods are running
+   kubectl get pods -l app.kubernetes.io/name=authentik
+   kubectl get pods -l cnpg.io/cluster
+   ```
+
+4. Run troubleshooting checks from https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md if issues occur
+
+## Error Handling
+
+If any step fails:
+
+1. **PostgreSQL issues**: Check `kubectl describe postgresql/<cluster-name>` and `kubectl logs deployment/postgresql-operator-controller-manager -n cnpg-system`
+
+2. **Authentik issues**: Check `kubectl logs -l app.kubernetes.io/name=authentik --tail=100`
+
+3. **General troubleshooting**: See https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/troubleshooting.md
+
+4. **Rollback if needed**:
+   ```bash
+   helm uninstall authentik
+   kubectl delete postgresql/<cluster-name>
+   ```
