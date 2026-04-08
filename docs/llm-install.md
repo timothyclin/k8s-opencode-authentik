@@ -235,10 +235,47 @@ Choose the Kubernetes storage class for persistent volumes.
 
 1. Install Authentik using official Helm chart from https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/authentik-deployment.md
 
-   Create values file from example:
-   ```bash
-   curl -s https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/values-official.yaml -o values.yaml
-   ```
+    Create values file from example and configure ingress:
+    ```bash
+    curl -s https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/values-official.yaml -o values.yaml
+
+    # Configure ingress via Helm values (skip if INGRESS_CLASS is "none")
+    INGRESS_CLASS="{{INGRESS_CLASS}}"
+    INGRESS_HOST="{{INGRESS_HOST}}"
+
+    if [ "$INGRESS_CLASS" != "none" ]; then
+      # Add ingress configuration to values.yaml
+      cat >> values.yaml << EOF
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "$INGRESS_CLASS"
+  hosts:
+    - host: $INGRESS_HOST
+      paths:
+        - path: /
+          pathType: Prefix
+EOF
+
+      if [ "$INGRESS_CLASS" = "tailscale" ]; then
+        cat >> values.yaml << EOF
+  annotations:
+    tailscale.com/tags: "tag:k8s"
+  tls:
+    - hosts:
+        - $INGRESS_HOST
+EOF
+      elif [ "$INGRESS_CLASS" = "nginx" ]; then
+        cat >> values.yaml << EOF
+  tls:
+    - secretName: authentik-tls
+      hosts:
+        - $INGRESS_HOST
+EOF
+      fi
+    fi
+    ```
 
 2. Generate Authentik secrets securely:
 
