@@ -35,13 +35,13 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
    kubectl apply -f postgresql-cluster.yaml
    ```
 
-3. Wait for PostgreSQL to be ready and get the database password:
+3. Wait for PostgreSQL to be ready and retrieve the database password securely:
    ```bash
    # Wait for cluster
    kubectl wait --for=condition=Ready cluster/authentik-db -n authentik --timeout=300s
    
-   # Get the auto-generated database password
-   kubectl get secret authentik-db-app -n authentik -o jsonpath='{.data.password}' | base64 -d
+   # Save database password to file (secure - not displayed)
+   kubectl get secret authentik-db-app -n authentik -o jsonpath='{.data.password}' | base64 -d > postgres_password.txt
    ```
 
 2. Generate secrets placeholder file:
@@ -80,18 +80,18 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
    curl -s https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/values-official.yaml -o values.yaml
    ```
 
-2. Generate Authentik secrets using the PostgreSQL password:
+2. Generate Authentik secrets securely:
    ```bash
-   # Get PostgreSQL password
-   POSTGRES_PASSWORD=$(kubectl get secret authentik-db-app -n authentik -o jsonpath='{.data.password}' | base64 -d)
+   # Generate secure secret key and save to file
+   openssl rand -base64 32 > authentik_secret_key.txt
    
-   # Create Authentik secrets file
+   # Create Authentik secrets file using saved passwords (no display)
    cat > values-authentik-secrets.yaml << EOF
-   authentik:
-     secret_key: "$(openssl rand -base64 32)"  # Auto-generated secure key
-     postgresql:
-       password: "$POSTGRES_PASSWORD"  # From PostgreSQL cluster
-   EOF
+authentik:
+  secret_key: "$(cat authentik_secret_key.txt)"
+  postgresql:
+    password: "$(cat postgres_password.txt)"
+EOF
    ```
 
 3. Install Authentik:
