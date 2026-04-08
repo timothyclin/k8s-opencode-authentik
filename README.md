@@ -1,35 +1,40 @@
 # k8s-opencode-authentik
 
-Standalone Helm chart for deploying Authentik Identity-Aware Proxy in Kubernetes clusters.
+Comprehensive documentation and examples for deploying Authentik Identity-Aware Proxy in k8s-opencode multi-user Kubernetes environments using the official Authentik Helm chart and CloudNativePG PostgreSQL operator.
 
-## Architecture Support
+## 🚀 Quick Start
 
-This chart supports deployment on both AMD64 and ARM64 architectures. The container images automatically resolve to the appropriate platform variant based on the target node architecture.
+Get Authentik running in 30 minutes:
 
-## Installation
+1. **[Prerequisites Check](docs/prerequisites.md)**
+2. **[Deploy PostgreSQL](docs/postgresql-setup.md)**
+3. **[Install Authentik](docs/authentik-deployment.md)**
+4. **[Configure Multi-User](docs/multi-user-config.md)**
+5. **[OIDC Integration](docs/oidc-integration.md)**
 
-### From source (development)
+## 📚 Documentation
 
-```bash
-helm install authentik ./charts/authentik \
-  -n authentik --create-namespace \
-  -f values.yaml
-```
+| Guide | Description | Time |
+|-------|-------------|------|
+| [Quick Start](docs/quickstart.md) | 30-minute deployment guide | 30 min |
+| [Prerequisites](docs/prerequisites.md) | System requirements | 5 min |
+| [PostgreSQL Setup](docs/postgresql-setup.md) | CloudNativePG operator | 10 min |
+| [Authentik Deployment](docs/authentik-deployment.md) | Official Helm chart | 15 min |
+| [Multi-User Config](docs/multi-user-config.md) | Users, groups, policies | 20 min |
+| [OIDC Integration](docs/oidc-integration.md) | k8s-opencode setup | 15 min |
+| [Advanced Topics](docs/advanced-topics.md) | Monitoring, scaling, backups | 30 min |
+| [Troubleshooting](docs/troubleshooting.md) | Common issues & solutions | As needed |
+| [API Reference](docs/api-reference.md) | Authentik API usage | Reference |
 
-### From GHCR (production)
+## 🛠️ Examples
 
-```bash
-helm install authentik oci://ghcr.io/timothyclin/k8s-opencode-authentik/chart/authentik \
-  -n authentik --create-namespace \
-  -f values.yaml
-```
+Ready-to-use configurations in [`docs/examples/`](docs/examples/):
+- `values-official.yaml` - Complete Helm values
+- `postgresql-cluster.yaml` - CloudNativePG cluster
+- `oidc-client-config.yaml` - OIDC client examples
 
-## Configuration
+## 🎯 Use Cases
 
-See `charts/authentik/values.yaml` for all configuration options.
+- **Multi-User Kubernetes**: Authentik as OIDC provider for k8s-opencode
 
-## Requirements
-
-- Kubernetes 1.19+
-- Helm 3.0+
-- Tailscale operator (for ingress)
+(Showing lines 1-2000 of 4219. Use offset=2001 to continue.)
