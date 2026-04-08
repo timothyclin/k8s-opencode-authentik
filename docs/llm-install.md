@@ -17,16 +17,30 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
    - For kubectl/helm: Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/prerequisites.md
    - For CloudNativePG: Run `kubectl apply -f https://github.com/cloudnative-pg/cloudnative-pg/releases/download/v1.22.1/cnpg-1.22.1.yaml`
 
-## Namespace Selection
+## Configuration Setup
 
-**Human Action Required:** Choose the Kubernetes namespace for Authentik deployment.
+**Human Action Required:** Provide the following configuration values before proceeding.
 
+### 1. Namespace Selection
+Choose the Kubernetes namespace for Authentik deployment.
 - **Suggested default:** `authentik`
 - **Alternative:** Use any valid namespace name (e.g., `identity`, `auth`, `security`)
 
-**IMPORTANT:** Once chosen, substitute `{{NAMESPACE}}` with your selected namespace in ALL subsequent commands. For example, if you choose `identity`, replace `kubectl create namespace {{NAMESPACE}}` with `kubectl create namespace identity`.
-
 Selected namespace: ________ (fill in your choice, default: `authentik`)
+
+### 2. Storage Class Selection
+Choose the Kubernetes storage class for persistent volumes.
+
+1. First, list available storage classes:
+   ```bash
+   kubectl get storageclass
+   ```
+
+2. **Select storage class:** Choose from the available classes listed above. This will be used for PostgreSQL and Authentik persistent storage.
+   
+   Selected storage class: ________ (fill in your choice)
+
+**IMPORTANT:** Once chosen, substitute `{{NAMESPACE}}` with your selected namespace and `{{STORAGE_CLASS}}` with your selected storage class in ALL subsequent commands and files.
 
 ## PostgreSQL Deployment
 
@@ -36,6 +50,10 @@ Selected namespace: ________ (fill in your choice, default: `authentik`)
    ```bash
    curl -s https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/postgresql-cluster.yaml -o postgresql-cluster.yaml
    ```
+
+   **Human Action Required:** Edit `postgresql-cluster.yaml` and replace:
+   - `{{NAMESPACE}}` with your selected namespace
+   - `{{STORAGE_CLASS}}` with your selected storage class
 
 2. Apply the PostgreSQL cluster:
    ```bash
