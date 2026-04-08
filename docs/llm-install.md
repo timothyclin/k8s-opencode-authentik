@@ -377,11 +377,16 @@ EOF
 
 1. Test Authentik login flow:
    ```bash
-    # Check ingress status
-    kubectl get ingress -n {{NAMESPACE}}
-    
-   # Test nginx ingress: curl http://authentik.local/-/health/live/
-   # Test Tailscale ingress: curl https://auth.{tailnet}.ts.net/-/health/live/
+   # Check ingress status
+   kubectl get ingress -n {{NAMESPACE}}
+   
+   {{- if eq .IngressClass "tailscale" }}
+   # Test Tailscale ingress
+   curl -k https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/-/health/live/
+   {{- else }}
+   # Test other ingress
+   curl https://{{INGRESS_HOST}}/-/health/live/
+   {{- end }}
    ```
 
 2. Verify OIDC integration:
