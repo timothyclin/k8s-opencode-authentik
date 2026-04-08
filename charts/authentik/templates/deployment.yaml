@@ -29,7 +29,7 @@ spec:
               name: {{ include "authentik.fullname" . }}-authentik
               key: secretKey
         - name: AUTHENTIK_POSTGRESQL__HOST
-          value: "10.152.183.201"
+          value: "{{ include "authentik.fullname" . }}-postgres"
         - name: AUTHENTIK_POSTGRESQL__NAME
           value: {{ .Values.authentik.postgres.database }}
         - name: AUTHENTIK_POSTGRESQL__USER
@@ -40,7 +40,7 @@ spec:
               name: {{ include "authentik.fullname" . }}-authentik
               key: postgresPassword
         - name: AUTHENTIK_REDIS__HOST
-          value: "10.152.183.163"
+          value: "{{ include "authentik.fullname" . }}-redis"
         - name: AUTHENTIK_REDIS__PASSWORD
           valueFrom:
             secretKeyRef:
