@@ -84,9 +84,9 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
    kubectl get pods -l app.kubernetes.io/name=authentik
    ```
 
-## Multi-User Configuration
+## Authentik Setup
 
-1. Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/multi-user-config.md to set up users, groups, and policies
+1. Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/authentik-setup.md to set up users, groups, and policies
 
 2. Access Authentik admin interface (URL from ingress)
 

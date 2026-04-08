@@ -1,4 +1,4 @@
-# Multi-User Configuration
+# Authentik Setup
 
 Set up tenants, users, groups, and policies for multi-user k8s-opencode environments.
 

@@ -13,7 +13,7 @@ Tell your LLM agent: "Install Authentik for k8s-opencode by following the instru
 1. **[Prerequisites Check](docs/prerequisites.md)**
 2. **[Deploy PostgreSQL](docs/postgresql-setup.md)**
 3. **[Install Authentik](docs/authentik-deployment.md)**
-4. **[Configure Multi-User](docs/multi-user-config.md)**
+4. **[Configure Authentik](docs/authentik-setup.md)**
 5. **[OIDC Integration](docs/oidc-integration.md)**
 
 ## 📚 Documentation
@@ -24,7 +24,7 @@ Tell your LLM agent: "Install Authentik for k8s-opencode by following the instru
 | [Prerequisites](docs/prerequisites.md) | System requirements | 5 min |
 | [PostgreSQL Setup](docs/postgresql-setup.md) | CloudNativePG operator | 10 min |
 | [Authentik Deployment](docs/authentik-deployment.md) | Official Helm chart | 15 min |
-| [Multi-User Config](docs/multi-user-config.md) | Users, groups, policies | 20 min |
+| [Authentik Config](docs/authentik-setup.md) | Users, groups, policies | 20 min |
 | [OIDC Integration](docs/oidc-integration.md) | k8s-opencode setup | 15 min |
 | [Advanced Topics](docs/advanced-topics.md) | Monitoring, scaling, backups | 30 min |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues & solutions | As needed |
