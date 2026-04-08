@@ -329,13 +329,11 @@ EOF
    # Find the ingress URL(s)
    kubectl get ingress -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
    
-   {{- if eq .IngressClass "tailscale" }}
-   # For Tailscale ingress: Look for ADDRESS column
+   # If using Tailscale ingress: Look for ADDRESS column
    # Your admin URL: https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/admin/
-   {{- else }}
-   # For other ingress: Look for HOSTS column
+   #
+   # If using other ingress: Look for HOSTS column
    # Your admin URL: https://{{INGRESS_HOST}}/admin/
-   {{- end }}
    
    Default credentials: admin / admin (change after first login)
    ```
