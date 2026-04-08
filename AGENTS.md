@@ -28,16 +28,41 @@ git worktree remove ../k8s-opencode-authentik-<task>
 
 When tagging vX.Y.Z, CI updates Chart.yaml version and appVersion automatically.
 
-## graphify
+## LLM Installation Security
 
-This project supports a graphify knowledge graph at graphify-out/. if you see
-it, follow the rlues below:
+Guidelines for AI agents assisting with Authentik installation:
 
-Rules:
+### Handling Sensitive Information
 
-- Before answering architecture or codebase questions, read
-  graphify-out/GRAPH_REPORT.md for god nodes and community structure
-- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
-- After modifying code files in this session, run
-  `python3 -c "from graphify.watch import _rebuild_code; from pathlib import Path; _rebuild_code(Path('.'))"`
-  to keep the graph current
+- **NEVER** read, store, or transmit passwords, cryptographic keys, tokens, or other secrets
+- **NEVER** accept secrets provided directly by users in conversation
+- **ALWAYS** generate placeholder files with obvious placeholders like `YOUR_SECRET_HERE`
+- **ALWAYS** cue humans to replace placeholders with actual values
+- **ALWAYS** instruct humans to delete placeholder files after use
+
+### Placeholder File Creation
+
+When secrets are required:
+1. Create a YAML file with placeholder values
+2. Clearly comment what each placeholder represents
+3. Instruct the human to replace placeholders
+4. Reference this file in commands using `-f filename.yaml`
+
+### Example
+
+```yaml
+# values-secrets.yaml
+authentik:
+  secret_key: "YOUR_AUTHENTIK_SECRET_KEY_HERE"  # Generate 50+ character random string
+  postgresql:
+    password: "YOUR_DATABASE_PASSWORD_HERE"    # Must match PostgreSQL setup
+```
+
+Human must replace `YOUR_*_HERE` values before proceeding.
+
+### Validation
+
+After placeholder replacement:
+- Verify files exist and placeholders are replaced
+- Do not inspect file contents for actual secret values
+- Proceed with installation using the updated files
