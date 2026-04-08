@@ -266,7 +266,9 @@ EOF
     - hosts:
         - $INGRESS_HOST
 EOF
-      elif [ "$INGRESS_CLASS" = "nginx" ]; then
+      fi
+
+      if [ "$INGRESS_CLASS" = "nginx" ]; then
         cat >> values.yaml << EOF
   tls:
     - secretName: authentik-tls
