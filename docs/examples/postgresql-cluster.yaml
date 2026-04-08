@@ -1,0 +1,82 @@
+# docs/examples/postgresql-cluster.yaml
+# CloudNativePG cluster configuration for Authentik
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: authentik-db
+  namespace: authentik
+spec:
+  instances: 2
+  
+  # PostgreSQL version
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  
+  # Storage configuration
+  storage:
+    size: 50Gi
+    storageClass: standard  # Adjust for your cluster
+    
+  # PostgreSQL configuration
+  postgresql:
+    parameters:
+      max_connections: "200"
+      shared_buffers: "512MB"
+      work_mem: "4MB"
+      maintenance_work_mem: "64MB"
+      wal_level: "replica"
+      max_wal_senders: "10"
+      max_replication_slots: "10"
+      
+  # Resource limits
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2
+      memory: 4Gi
+  
+  # Backup configuration
+  backup:
+    retentionPolicy: "30d"
+    barmanObjectStore:
+      destinationPath: "s3://your-backup-bucket/authentik"
+      endpointURL: "https://s3.us-west-1.amazonaws.com"
+      s3Credentials:
+        accessKeyId:
+          name: backup-secret
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: backup-secret
+          key: AWS_SECRET_ACCESS_KEY
+      wal:
+        compression: gzip
+        maxParallel: 2
+  
+  # Monitoring
+  monitoring:
+    enablePodMonitor: true
+    podMonitorMetricRelabelings:
+      - action: replace
+        sourceLabels: [__name__]
+        targetLabel: __name__
+        regex: cnpg_(.*)
+        replacement: postgresql_$1
+  
+  # High availability
+  maxSyncReplicas: 1
+  minSyncReplicas: 0
+  
+  # Maintenance
+  enableSuperuserAccess: false
+---
+# Backup credentials secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backup-secret
+  namespace: authentik
+type: Opaque
+data:
+  AWS_ACCESS_KEY_ID: <base64-encoded-key>
+  AWS_SECRET_ACCESS_KEY: <base64-encoded-secret>
