@@ -8,7 +8,7 @@ Get Authentik running in 30 minutes:
 
 ### For AI-Assisted Installation
 
-Tell your LLM agent: "Follow the instructions in docs/llm-install.md to install Authentik for k8s-opencode"
+Tell your LLM agent: "Install Authentik for k8s-opencode by following the instructions here: https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/llm-install.md"
 
 1. **[Prerequisites Check](docs/prerequisites.md)**
 2. **[Deploy PostgreSQL](docs/postgresql-setup.md)**
