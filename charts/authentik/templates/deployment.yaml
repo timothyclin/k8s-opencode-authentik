@@ -23,6 +23,29 @@ spec:
         image: {{ .Values.authentik.image.repository }}:{{ .Values.authentik.image.tag }}
         command: ["ak", "server"]
         env:
+        - name: AUTHENTIK_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "authentik.fullname" . }}-authentik
+              key: secretKey
+        - name: AUTHENTIK_POSTGRESQL__HOST
+          value: "10.152.183.201"
+        - name: AUTHENTIK_POSTGRESQL__NAME
+          value: {{ .Values.authentik.postgres.database }}
+        - name: AUTHENTIK_POSTGRESQL__USER
+          value: {{ .Values.authentik.postgres.username }}
+        - name: AUTHENTIK_POSTGRESQL__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "authentik.fullname" . }}-authentik
+              key: postgresPassword
+        - name: AUTHENTIK_REDIS__HOST
+          value: "10.152.183.163"
+        - name: AUTHENTIK_REDIS__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "authentik.fullname" . }}-authentik
+              key: redisPassword
         - name: AUTHENTIK_BOOTSTRAP_PASSWORD
           value: "admin"  # Change in production
         - name: AUTHENTIK_BOOTSTRAP_EMAIL

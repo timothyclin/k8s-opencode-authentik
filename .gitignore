@@ -8,10 +8,33 @@ charts/*/charts/
 # Python
 __pycache__/
 *.pyc
+.venv/
+venv/
+dist/
+build/
+.pytest_cache 
 
 # OS
 .DS_Store
 Thumbs.db
+env/
 
 # Worktrees
 .worktrees/
+
+# Graphify
+.graphify/ 
+.graphify_*
+graphify-out/
+.grapyify_python 
+
+
+# Coding Agents
+.opencode/
+.claude/ 
+skills/ 
+
+# Test artifacts
+authentik-values.yaml
+
+

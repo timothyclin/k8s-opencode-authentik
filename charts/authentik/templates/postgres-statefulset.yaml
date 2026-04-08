@@ -34,7 +34,7 @@ spec:
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ include "authentik.fullname" . }}-postgres
+              name: {{ include "authentik.fullname" . }}-authentik-postgres
               key: password
         ports:
         - containerPort: 5432
@@ -44,18 +44,10 @@ spec:
           mountPath: /var/lib/postgresql/data
         resources:
 {{ toYaml .Values.postgres.resources | indent 10 }}
-      volumes:
-      - name: postgres-data
-        {{- if .Values.postgres.persistence.enabled }}
-        persistentVolumeClaim:
-          claimName: {{ include "authentik.fullname" . }}-postgres
-        {{- else }}
-        emptyDir: {}
-        {{- end }}
 {{- if .Values.postgres.persistence.enabled }}
   volumeClaimTemplates:
   - metadata:
-      name: {{ include "authentik.fullname" . }}-postgres
+      name: postgres-data
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:

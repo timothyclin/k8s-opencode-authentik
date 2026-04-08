@@ -61,8 +61,8 @@ helm install authentik authentik/authentik \
 
 ```bash
 # Get admin password
-kubectl get secret -n authentik authentik-secret \
-  -o jsonpath='{.data.adminPassword}' | base64 -d
+kubectl get secret -n authentik authentik-postgres \
+  -o jsonpath='{.data.password}' | base64 -d
 
 # Access Authentik
 open https://authentik.yourdomain.com
@@ -70,6 +70,8 @@ open https://authentik.yourdomain.com
 # Complete setup wizard with:
 # - Email: admin@yourdomain.com
 # - Password: [from secret above]
+
+# Note: If the values file doesn't include bootstrap settings, you may need to manually set up the admin user or update the values file with authentik.bootstrap_password.
 ```
 
 ## 4. Configure Multi-User (10 minutes)
@@ -121,7 +123,6 @@ kubectl exec -n authentik deployment/authentik-worker -- ak test-db
 
 - [Configure users and groups](multi-user-config.md)
 - [Set up OIDC integration](oidc-integration.md)
-- [Deploy monitoring](advanced-topics.md)
 - [Troubleshoot issues](troubleshooting.md)
 
 ## Cleanup (if needed)
