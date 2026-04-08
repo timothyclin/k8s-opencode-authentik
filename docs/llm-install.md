@@ -79,22 +79,25 @@ Choose the Kubernetes storage class for persistent volumes.
    apiVersion: networking.k8s.io/v1
    kind: Ingress
    metadata:
-     name: authentik-tailscale
+     name: auth
      namespace: {{NAMESPACE}}
-     annotations:
-       tailscale.com/hostname: "authentik"
    spec:
      ingressClassName: tailscale
      rules:
-     - http:
+     - host: auth
+       http:
          paths:
          - path: /
-           pathType: Prefix
+           pathType: ImplementationSpecific
            backend:
              service:
                name: authentik-server
                port:
-                 number: 443
+                 name: https
+     tls:
+     - hosts:
+       - auth
+       secretName: auth-tls
    EOF
    
    kubectl apply -f tailscale-ingress.yaml
@@ -102,8 +105,8 @@ Choose the Kubernetes storage class for persistent volumes.
    
    Wait for Tailscale domain assignment:
    ```bash
-   kubectl get ingress authentik-tailscale -n {{NAMESPACE}}
-   # Look for ADDRESS column - this will be your Tailscale domain (e.g., authentik-*.ts.net)
+   kubectl get ingress auth -n {{NAMESPACE}}
+   # Look for ADDRESS column - this will be your short Tailscale domain (e.g., auth.{tailnet}.ts.net)
    ```
 
 ## Authentik Installation
@@ -154,7 +157,7 @@ EOF
     kubectl get ingress -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
     
     # For nginx ingress: Look for HOSTS column (e.g., authentik.local)
-    # For Tailscale ingress: Look for ADDRESS column (e.g., authentik-*.ts.net)
+    # For Tailscale ingress: Look for ADDRESS column (e.g., auth.{tailnet}.ts.net)
     
     # Admin URL: https://[hostname]/admin/
     ```
@@ -202,8 +205,8 @@ EOF
     # Check ingress status
     kubectl get ingress -n {{NAMESPACE}}
     
-    # Test nginx ingress: curl http://authentik.local/-/health/live/
-    # Test Tailscale ingress: curl https://[tailscale-domain]/-/health/live/
+   # Test nginx ingress: curl http://authentik.local/-/health/live/
+   # Test Tailscale ingress: curl https://auth.{tailnet}.ts.net/-/health/live/
    ```
 
 2. Verify OIDC integration:

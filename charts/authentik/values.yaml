@@ -1,5 +1,5 @@
 # Authentik domain (must match Tailscale ingress)
-domain: "authentik.example.ts.net"
+domain: "auth.example.ts.net"
 
 authentik:
   enabled: true
@@ -32,7 +32,7 @@ authentik:
 # Proxy configuration for cookie domain
 proxy:
   enabled: true
-  hostname: "authentik.example.ts.net"
+  hostname: "auth.example.ts.net"
   cookieDomain: ".example.ts.net"
 
 # PostgreSQL configuration
@@ -69,6 +69,6 @@ redis:
 # Tailscale ingress
 ingress:
   enabled: true
-  hostname: "authentik"
+  hostname: "auth"
   tailscale:
     proxyTag: "tag:k8s"
