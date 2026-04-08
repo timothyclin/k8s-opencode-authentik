@@ -50,17 +50,11 @@ Based on the available classes above:
 ### 3. Configure Hostname
 
 #### For Tailscale Ingress:
-**Recommended hostname:** `auth`
+**Recommended shortname:** `auth`
 
-This will create the URL: `auth.{your-tailnet}.ts.net`
+This will create the URL: `auth.{tailnet}.ts.net` where `{tailnet}` is automatically resolved by the Tailscale ingress controller in your cluster.
 
-**Human Action Required:** Confirm your Tailscale tailnet name (found in Tailscale admin console or `tailscale status` command).
-
-**Your tailnet name:** ________ (e.g., mycompany, personal)
-
-**Resulting URL:** auth.{{TAILNET}}.ts.net
-
-**Custom hostname (optional):** ________ (leave blank to use 'auth', or enter custom like 'idp', 'login')
+**Custom shortname (optional):** ________ (leave blank to use 'auth', or enter custom like 'idp', 'login')
 
 #### For Other Ingress Classes:
 **Hostname:** ________ (e.g., authentik.yourdomain.com)
@@ -225,14 +219,15 @@ EOF
    **Note:** During initial setup, pods may show "Running" but not "Ready" while database migrations complete. This is normal and can take 5-10 minutes.
 
 5. **Complete Authentik Initial Setup:**
-   - Visit https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/if/flow/initial-setup/ (for Tailscale) or https://{{INGRESS_HOST}}/if/flow/initial-setup/ (for other ingress)
+   - Visit https://{{INGRESS_HOST}}/if/flow/initial-setup/ (for Tailscale, this will resolve to https://auth.{tailnet}.ts.net/if/flow/initial-setup/; for other ingress, use the configured hostname)
    - Follow the web interface to complete the initial Authentik configuration
    - Set up the first admin user and basic settings
    - **Important:** Do not proceed to the next section until initial setup is complete
+   - **LLM Agent:** Wait for human confirmation that the initial setup is complete before continuing to the Authentik Setup section
 
 ## Authentik Setup
 
-**Prerequisite:** Ensure you have completed the initial Authentik setup at https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/if/flow/initial-setup/ before proceeding.
+**Prerequisite:** Ensure you have completed the initial Authentik setup at https://{{INGRESS_HOST}}/if/flow/initial-setup/ (for Tailscale: https://auth.{tailnet}.ts.net/if/flow/initial-setup/) before proceeding.
 
 1. Follow https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/authentik-setup.md to set up users, groups, and policies
 
@@ -241,11 +236,8 @@ EOF
    # Find the ingress URL(s)
    kubectl get ingress -l app.kubernetes.io/name=authentik -n {{NAMESPACE}}
    
-   # If using Tailscale ingress: Look for ADDRESS column
-   # Your admin URL: https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/admin/
-   #
-   # If using other ingress: Look for HOSTS column
-   # Your admin URL: https://{{INGRESS_HOST}}/admin/
+   # For Tailscale ingress: The URL will be https://{{INGRESS_HOST}}.{tailnet}.ts.net/admin/
+   # For other ingress: The URL will be https://{{INGRESS_HOST}}/admin/
    
    Default credentials: admin / admin (change after first login)
    ```
@@ -293,8 +285,8 @@ EOF
    kubectl get ingress -n {{NAMESPACE}}
     
     if [ "$INGRESS_CLASS" = "tailscale" ]; then
-      # Test Tailscale ingress
-      curl -k https://{{INGRESS_HOST}}.{{TAILNET}}.ts.net/-/health/live/
+      # Test Tailscale ingress (replace {tailnet} with your actual tailnet)
+      curl -k https://{{INGRESS_HOST}}.{tailnet}.ts.net/-/health/live/
     else
       # Test other ingress
       curl https://{{INGRESS_HOST}}/-/health/live/
@@ -337,7 +329,7 @@ If any step fails:
 6. **Domain resolution issues:**
    - Tailscale domains may take 1-2 minutes to propagate
    - Check `tailscale status` for connectivity issues
-   - Verify tailnet name is correct in configuration
+   - Verify the shortname is correct in configuration (defaults to 'auth')
 
 7. **Database lock issues**: During initial setup, pods may show "Running" but not "Ready" while database migrations complete. Wait 5-10 minutes and check health endpoints.
 
