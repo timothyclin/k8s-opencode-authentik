@@ -26,6 +26,24 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
    curl -s https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/postgresql-cluster.yaml -o postgresql-cluster.yaml
    ```
 
+2. Apply the PostgreSQL cluster:
+   ```bash
+   # Create namespace first
+   kubectl create namespace authentik
+   
+   # Apply cluster configuration
+   kubectl apply -f postgresql-cluster.yaml
+   ```
+
+3. Wait for PostgreSQL to be ready and get the database password:
+   ```bash
+   # Wait for cluster
+   kubectl wait --for=condition=Ready cluster/authentik-db -n authentik --timeout=300s
+   
+   # Get the auto-generated database password
+   kubectl get secret authentik-db-app -n authentik -o jsonpath='{.data.password}' | base64 -d
+   ```
+
 2. Generate secrets placeholder file:
    ```bash
    cat > values-postgres-secrets.yaml << 'EOF'
@@ -62,18 +80,19 @@ This guide provides step-by-step instructions for LLM agents to assist humans in
    curl -s https://raw.githubusercontent.com/timothyclin/k8s-opencode-authentik/main/docs/examples/values-official.yaml -o values.yaml
    ```
 
-2. Generate secrets placeholder file:
+2. Generate Authentik secrets using the PostgreSQL password:
    ```bash
-   cat > values-authentik-secrets.yaml << 'EOF'
-   # Replace placeholders with actual secret values
+   # Get PostgreSQL password
+   POSTGRES_PASSWORD=$(kubectl get secret authentik-db-app -n authentik -o jsonpath='{.data.password}' | base64 -d)
+   
+   # Create Authentik secrets file
+   cat > values-authentik-secrets.yaml << EOF
    authentik:
-     secret_key: "YOUR_AUTHENTIK_SECRET_KEY_HERE"  # Generate 50+ character random string
+     secret_key: "$(openssl rand -base64 32)"  # Auto-generated secure key
      postgresql:
-       password: "YOUR_DATABASE_PASSWORD_HERE"  # Must match PostgreSQL password
+       password: "$POSTGRES_PASSWORD"  # From PostgreSQL cluster
    EOF
    ```
-
-   **Human Action Required:** Replace placeholders in `values-authentik-secrets.yaml`
 
 3. Install Authentik:
    ```bash
